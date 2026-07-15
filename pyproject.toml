@@ -1,0 +1,50 @@
+[project]
+name = "sentinel-ai"
+version = "0.1.0"
+description = "Sentinel AI — Enterprise Knowledge & Investigation Platform"
+requires-python = ">=3.12"
+
+dependencies = [
+    # Web framework
+    "fastapi>=0.116.0",
+    "uvicorn[standard]>=0.32.0",
+    # Configuration — Pydantic v2 native env loading
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+    # Structured logging
+    "python-json-logger>=2.0.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6.0",
+    "mypy>=1.11.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.27.0",
+]
+
+[tool.hatch.build.targets.wheel]
+# The installable Python package lives at backend/app/.
+# Hatchling will install it as the `app` package.
+packages = ["backend/app"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
