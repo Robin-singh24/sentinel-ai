@@ -73,10 +73,11 @@ class Settings(BaseSettings):
     llm_model: str = "llama-3.1-8b-instant"
     groq_api_key: str = ""
 
-    # ── JWT (future — not used yet) ───────────────────────────────────────────
+    # ── JWT ───────────────────────────────────────────────────────────────────
     jwt_secret_key: str = ""
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 30
+    jwt_refresh_token_expire_days: int = 7
 
     # ── Computed fields ───────────────────────────────────────────────────────
 

@@ -31,6 +31,8 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String(100))
     avatar_url: Mapped[str | None] = mapped_column(String(500))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    # Nulled on logout; overwritten on each refresh to enforce single-session rotation
+    refresh_token_hash: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
     )

@@ -499,3 +499,42 @@ Implement only what is required for the current phase.
 Do not introduce abstractions, interfaces, helper classes, configuration, or extension points that are not immediately required.
 
 Optimize for clarity over theoretical future requirements.
+
+# 35. Model Rules
+
+Models must contain only:
+
+- ORM mappings
+- Relationships
+- Constraints
+- Minimal helper properties
+
+Models must never contain:
+
+- Business logic
+- Database queries
+- Authentication
+- Validation
+- API serialization
+
+# 36. Layer Responsibilities
+
+API Layer
+- Receives requests
+- Validates input
+- Calls services
+- Returns responses
+
+Service Layer
+- Contains business logic
+- Coordinates repositories
+- Enforces business rules
+
+Repository Layer
+- Performs database operations only
+
+Model Layer
+- Defines ORM mappings and relationships only
+
+Schema Layer
+- Defines request and response DTOs only
