@@ -538,3 +538,11 @@ Model Layer
 
 Schema Layer
 - Defines request and response DTOs only
+
+# 37. Performance Guidelines
+
+- Avoid reading large files into memory unless justified.
+- Prefer streaming for files larger than 10 MB.
+- Minimize unnecessary database queries.
+- Avoid N+1 query patterns.
+- Prefer async I/O where applicable.

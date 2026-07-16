@@ -26,18 +26,14 @@ class StorageService:
         workspace_id: uuid.UUID,
         original_filename: str,
     ) -> str:
-        """Persist bytes to disk and return the relative storage path.
-
-        The filename is a UUID4 with the original extension preserved, so
-        collisions are impossible and the original name is never exposed on disk.
-        """
+        """Persist bytes to disk and return the relative storage path."""
         workspace_dir = self._root / str(workspace_id)
         workspace_dir.mkdir(parents=True, exist_ok=True)
 
         extension = Path(original_filename).suffix.lower()
         stored_filename = f"{uuid.uuid4()}{extension}"
         absolute_path = workspace_dir / stored_filename
-        # Relative path is what gets persisted in the DB — keeps storage root swappable
+        # Relative path gets persisted to disk
         relative_path = str(Path(str(workspace_id)) / stored_filename)
 
         try:
