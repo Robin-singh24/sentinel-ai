@@ -23,6 +23,7 @@ from app.common.exceptions import SentinelBaseException
 from app.common.responses import ErrorDetail, ErrorResponse
 from app.config.settings import get_settings
 from app.core.logging import configure_logging, get_logger
+from app.database.engine import engine as db_engine
 
 # ── Bootstrap ─────────────────────────────────────────────────────────────────
 # Logging must be configured before the first logger is obtained so that the
@@ -58,21 +59,18 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
             "version": settings.app_version,
             "environment": settings.environment,
             "log_level": settings.log_level,
+            "postgres_host": settings.postgres_host,
+            "postgres_db": settings.postgres_db,
         },
     )
-
-    # ── Future startup hooks ───────────────────────────────────────────────
-    # await database.connect()
-    # await vector_client.connect()
 
     yield  # Application is now running and accepting requests.
 
     # ── Shutdown ───────────────────────────────────────────────────────────
+    # Dispose the engine — closes all pooled connections cleanly.
+    await db_engine.dispose()
+    logger.info("Database engine disposed.")
     logger.info("Sentinel AI shutting down gracefully.")
-
-    # ── Future shutdown hooks ──────────────────────────────────────────────
-    # await database.disconnect()
-    # await vector_client.close()
 
 
 # ── Application factory ────────────────────────────────────────────────────────

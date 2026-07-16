@@ -13,6 +13,7 @@ Usage:
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -44,8 +45,22 @@ class Settings(BaseSettings):
     # ── Logging ──────────────────────────────────────────────────────────────
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
-    # ── Database (future — not connected yet) ────────────────────────────────
-    database_url: str = "postgresql+asyncpg://sentinel:sentinel@localhost:5432/sentinel"
+    # ── PostgreSQL — individual credentials ──────────────────────────────────
+    # Each variable is supplied independently so Docker Compose / Kubernetes
+    # can inject credentials from separate secrets. The async DSN is assembled
+    # by the computed `database_url` property below.
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_db: str = "sentinel"
+    postgres_user: str = "sentinel"
+    postgres_password: str = "sentinel"
+
+    # ── Database connection pool ──────────────────────────────────────────────
+    db_pool_size: int = 5
+    db_max_overflow: int = 10
+    db_pool_timeout: int = 30        # seconds to wait for a connection
+    db_pool_recycle: int = 1800      # recycle connections older than 30 min
+    db_echo: bool = False            # set True locally to log SQL statements
 
     # ── Redis (future — not connected yet) ───────────────────────────────────
     redis_url: str = "redis://localhost:6379/0"
@@ -62,6 +77,22 @@ class Settings(BaseSettings):
     jwt_secret_key: str = ""
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 30
+
+    # ── Computed fields ───────────────────────────────────────────────────────
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def database_url(self) -> str:
+        """
+        Async SQLAlchemy DSN assembled from individual Postgres credentials.
+
+        Uses the asyncpg driver dialect required by the async engine.
+        Format: postgresql+asyncpg://<user>:<password>@<host>:<port>/<db>
+        """
+        return (
+            f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}"
+            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        )
 
 
 @lru_cache
