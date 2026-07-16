@@ -43,13 +43,13 @@ if config.config_file_name is not None:
 from app.config.settings import get_settings  # noqa: E402
 
 # ── Import ORM Base and all models ────────────────────────────────────────────
-# Base.metadata must include every table for --autogenerate to work correctly.
-# As domain models are created in future phases, import them here:
-#
-#   from app.modules.auth.models import User          # noqa: F401
-#   from app.modules.workspace.models import Workspace  # noqa: F401
-#
+# Every model must be imported here so its table is registered in Base.metadata
+# before --autogenerate compares it against the live schema.
 from app.database.base import Base  # noqa: E402
+from app.modules.auth.models import User  # noqa: E402, F401
+from app.modules.conversations.models import Conversation, Message  # noqa: E402, F401
+from app.modules.documents.models import Document  # noqa: E402, F401
+from app.modules.workspaces.models import Workspace  # noqa: E402, F401
 
 target_metadata = Base.metadata
 
