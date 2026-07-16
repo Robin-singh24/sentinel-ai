@@ -56,13 +56,7 @@ class SentinelNotFoundError(SentinelBaseException):
 
 
 class SentinelValidationError(SentinelBaseException):
-    """
-    Raised when an input fails domain-level validation rules.
-
-    Args:
-        message: A human-readable explanation of the validation failure.
-        field:   Optional — the specific input field that is invalid.
-    """
+    """ Raised when an input fails domain-level validation rules. """
 
     def __init__(self, message: str, field: str | None = None) -> None:
         detail = f"[{field}] {message}" if field else message
