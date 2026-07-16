@@ -79,6 +79,10 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 30
     jwt_refresh_token_expire_days: int = 7
 
+    # ── File upload ───────────────────────────────────────────────────────────
+    upload_directory: str = "/app/uploads"
+    max_upload_size_mb: int = 25
+
     # ── Computed fields ───────────────────────────────────────────────────────
 
     @computed_field  # type: ignore[prop-decorator]
