@@ -1,0 +1,33 @@
+✅ Phase 0 — Project Planning & Documentation
+
+✅ Phase 1 — Database Infrastructure
+
+✅ Phase 2 — ORM Models
+
+✅ Phase 3 — Authentication
+
+✅ Phase 4 — Workspace Module
+
+✅ Phase 5A — Document Upload
+
+✅ Phase 5B — Document Management
+
+✅ Phase 5B.5 — Document Integration Testing
+
+⏳ Phase 6 — Document Processing Pipeline
+
+⏳ Phase 7 — Embedding Service
+
+⏳ Phase 8 — Qdrant Integration
+
+⏳ Phase 9 — Retriever Agent
+
+⏳ Phase 10 — Supervisor Agent
+
+⏳ Phase 11 — Response Agent
+
+⏳ Phase 12 — Conversation Memory
+
+⏳ Phase 13 — Frontend (React)
+
+⏳ Phase 14 — Production Hardening & Deployment
