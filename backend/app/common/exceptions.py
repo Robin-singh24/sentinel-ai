@@ -80,3 +80,10 @@ class SentinelForbiddenError(SentinelBaseException):
 
     def __init__(self, message: str = "You do not have permission to perform this action.") -> None:
         super().__init__(message=message, code="FORBIDDEN", http_status=403)
+
+
+class SentinelProviderError(SentinelBaseException):
+    """Raised when an external AI provider or model fails to load or execute."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message=message, code="PROVIDER_ERROR", http_status=500)

@@ -25,6 +25,8 @@ dependencies = [
     "python-multipart>=0.0.9",
     # Document parsing — PDF text extraction (imported as fitz)
     "pymupdf>=1.24.0",
+    # Embeddings — Sentence Transformers
+    "sentence-transformers>=3.0.0",
 ]
 
 [project.optional-dependencies]
@@ -60,3 +62,8 @@ testpaths = ["tests"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "requests>=2.34.2",
+]

@@ -14,9 +14,9 @@
 
 ✅ Phase 5B.5 — Document Integration Testing
 
-⏳ Phase 6 — Document Processing Pipeline
+✅ Phase 6 — Document Processing Pipeline
 
-⏳ Phase 7 — Embedding Service
+✅ Phase 7 — Embedding Service - ongoing
 
 ⏳ Phase 8 — Qdrant Integration
 
