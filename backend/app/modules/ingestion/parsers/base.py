@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 
+from app.modules.ingestion.models import DocumentProcessingContext
 from app.modules.ingestion.parsers.exceptions import ParseUnsupportedTypeError
 
 
@@ -51,8 +52,8 @@ _EXTENSION_TO_TYPE: dict[str, DocumentType] = {
 }
 
 
-def get_parser(mime_type: str, filename: str) -> BaseParser:
-    """Return the correct parser instance for the given file."""
+def get_parser(context: DocumentProcessingContext) -> BaseParser:
+    """Return the correct parser instance for the given file context."""
     from app.modules.ingestion.parsers.markdown_parser import MarkdownParser
     from app.modules.ingestion.parsers.pdf_parser import PdfParser
     from app.modules.ingestion.parsers.text_parser import TextParser
@@ -63,13 +64,13 @@ def get_parser(mime_type: str, filename: str) -> BaseParser:
         DocumentType.text: TextParser(),
     }
 
-    doc_type = _MIME_TO_TYPE.get(mime_type.lower())
+    doc_type = _MIME_TO_TYPE.get(context.mime_type.lower())
 
     if doc_type is None:
-        extension = Path(filename).suffix.lower()
+        extension = Path(context.original_filename).suffix.lower()
         doc_type = _EXTENSION_TO_TYPE.get(extension)
 
     if doc_type is None:
-        raise ParseUnsupportedTypeError(mime_type=mime_type)
+        raise ParseUnsupportedTypeError(mime_type=context.mime_type)
 
     return _TYPE_TO_PARSER[doc_type]
