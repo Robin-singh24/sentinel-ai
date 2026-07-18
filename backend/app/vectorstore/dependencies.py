@@ -6,6 +6,7 @@ from fastapi import Request, Depends
 
 from app.vectorstore.client.qdrant import QdrantConnectionManager
 from app.vectorstore.collections.manager import CollectionManager
+from app.vectorstore.repositories.repository import VectorRepository
 from app.vectorstore.exceptions import SentinelVectorStoreError
 
 
@@ -22,3 +23,10 @@ def get_collection_manager(
 ) -> CollectionManager:
     """Retrieves the CollectionManager initialized with the application's QdrantConnectionManager."""
     return CollectionManager(qdrant_manager=qdrant_manager)
+
+
+def get_vector_repository(
+    qdrant_manager: QdrantConnectionManager = Depends(get_qdrant_manager),
+) -> VectorRepository:
+    """Retrieves the VectorRepository initialized with the application's QdrantConnectionManager."""
+    return VectorRepository(qdrant_manager=qdrant_manager)

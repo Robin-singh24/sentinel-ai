@@ -17,37 +17,7 @@ from app.vectorstore.exceptions import SentinelVectorStoreError
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture
-async def qdrant_manager():
-    """Provides a real QdrantConnectionManager connected to the Docker environment."""
-    settings = get_settings()
-    manager = QdrantConnectionManager(settings)
-    yield manager
-    await manager.close()
 
-
-@pytest.fixture
-async def collection_manager(qdrant_manager):
-    """Provides the CollectionManager under test."""
-    return CollectionManager(qdrant_manager)
-
-
-@pytest.fixture
-async def test_collection_config(collection_manager):
-    """Provides a deterministic collection configuration and ensures cleanup."""
-    name = f"test_col_{uuid.uuid4().hex[:8]}"
-    config = CollectionConfig(
-        name=name,
-        vector_size=384,
-        distance=Distance.COSINE
-    )
-    yield config
-    
-    # Resource Cleanup (9)
-    try:
-        await collection_manager.delete_collection(name)
-    except Exception:
-        pass
 
 
 async def test_collection_creation_and_existence(collection_manager, test_collection_config, caplog):
