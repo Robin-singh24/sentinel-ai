@@ -48,7 +48,11 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     # Qdrant
-    qdrant_url: str = "http://localhost:6333"
+    qdrant_host: str = "localhost"
+    qdrant_port: int = 6333
+    qdrant_api_key: str | None = None
+    qdrant_https: bool = False
+    qdrant_timeout: int = 10
 
     # LLM Provider 
     llm_provider: str = "groq"
@@ -84,6 +88,13 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}"
             f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def qdrant_url(self) -> str:
+        """Qdrant connection URL assembled from host, port, and scheme."""
+        scheme = "https" if self.qdrant_https else "http"
+        return f"{scheme}://{self.qdrant_host}:{self.qdrant_port}"
 
 
 @lru_cache

@@ -1,3 +1,4 @@
+import sys
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -12,6 +13,8 @@ from app.config.settings import get_settings
 from app.core.logging import configure_logging, get_logger
 from app.database.engine import engine as db_engine
 from app.database import models as _models
+from app.vectorstore.client.qdrant import QdrantConnectionManager
+from app.vectorstore.exceptions import SentinelVectorStoreError
 
 
 _settings = get_settings()
@@ -36,8 +39,20 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         },
     )
 
+    qdrant_manager = QdrantConnectionManager(settings=settings)
+    application.state.qdrant_manager = qdrant_manager
+    try:
+        await qdrant_manager.check_health()
+    except SentinelVectorStoreError as e:
+        logger.critical(
+            "Vector store infrastructure initialization failed.",
+            extra={"error": e.message}
+        )
+        sys.exit(1)
+
     yield 
 
+    await qdrant_manager.close()
     await db_engine.dispose()
     logger.info("Database engine disposed.")
     logger.info("Sentinel AI shutting down gracefully.")
