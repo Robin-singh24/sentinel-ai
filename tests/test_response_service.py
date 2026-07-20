@@ -3,9 +3,9 @@
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-from app.agents.response.exceptions import SentinelResponseError
 from app.agents.response.formatter import ContextFormatter
-from app.agents.response.models import FormattedContext, LLMResponse, Prompt
+from app.agents.response.models import FormattedContext, GeneratedResponse, LLMResponse, Prompt
+from app.agents.response.parser import ResponseParser
 from app.agents.response.prompt_builder import PromptBuilder
 from app.agents.response.providers.base import BaseLLMProvider
 from app.agents.response.service import ResponseService
@@ -21,8 +21,8 @@ class TestResponseService:
     """Tests for the ResponseService orchestration."""
 
     @pytest.mark.asyncio
-    async def test_generate_response_orchestrates_flow_and_raises(self):
-        """Verify the service calls formatting, building, and provider, then stops."""
+    async def test_generate_response_orchestrates_flow_and_returns_generated_response(self):
+        """Verify the service calls formatting, building, provider, and parser."""
         mock_formatter = Mock(spec=ContextFormatter)
         mock_formatter.format.return_value = FormattedContext(text="Context")
         
@@ -32,17 +32,23 @@ class TestResponseService:
         mock_provider = AsyncMock(spec=BaseLLMProvider)
         mock_provider.generate.return_value = LLMResponse(text="Final LLM text")
         
+        mock_parser = Mock(spec=ResponseParser)
+        mock_parser.parse.return_value = GeneratedResponse(content="Final Parsed Response")
+        
         service = ResponseService(
             formatter=mock_formatter,
             prompt_builder=mock_builder,
-            llm_provider=mock_provider
+            llm_provider=mock_provider,
+            parser=mock_parser,
         )
         
         workflow_result = WorkflowExecutionResult(retrieved_chunks=[])
         query = "Test query"
         
-        with pytest.raises(SentinelResponseError, match="Response parsing is not yet implemented."):
-            await service.generate_response(query=query, workflow_result=workflow_result)
+        result = await service.generate_response(query=query, workflow_result=workflow_result)
+        
+        assert isinstance(result, GeneratedResponse)
+        assert result.content == "Final Parsed Response"
             
         mock_formatter.format.assert_called_once_with(workflow_result)
         mock_builder.build.assert_called_once_with(

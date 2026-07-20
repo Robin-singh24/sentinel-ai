@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.agents.response.formatter import ContextFormatter
+from app.agents.response.parser import ResponseParser
 from app.agents.response.prompt_builder import PromptBuilder
 from app.agents.response.providers.base import BaseLLMProvider
 from app.agents.response.providers.grok import GrokProvider
@@ -26,6 +27,11 @@ def get_prompt_builder() -> PromptBuilder:
     return PromptBuilder()
 
 
+def get_response_parser() -> ResponseParser:
+    """Create and return a ResponseParser instance."""
+    return ResponseParser()
+
+
 def get_llm_provider(settings: Annotated[Settings, Depends(get_settings)]) -> BaseLLMProvider:
     """Create and return the LLM provider instance based on settings.
     
@@ -39,10 +45,12 @@ def get_response_service(
     formatter: Annotated[ContextFormatter, Depends(get_context_formatter)],
     prompt_builder: Annotated[PromptBuilder, Depends(get_prompt_builder)],
     llm_provider: Annotated[BaseLLMProvider, Depends(get_llm_provider)],
+    parser: Annotated[ResponseParser, Depends(get_response_parser)],
 ) -> ResponseService:
     """Create and return a ResponseService instance."""
     return ResponseService(
         formatter=formatter,
         prompt_builder=prompt_builder,
         llm_provider=llm_provider,
+        parser=parser,
     )
