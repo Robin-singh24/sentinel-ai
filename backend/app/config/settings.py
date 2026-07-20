@@ -55,9 +55,10 @@ class Settings(BaseSettings):
     qdrant_timeout: int = 10
 
     # LLM Provider 
-    llm_provider: str = "groq"
-    llm_model: str = "llama-3.1-8b-instant"
+    llm_provider: str = "grok"
+    llm_model: str = "grok-beta"
     groq_api_key: str = ""
+    grok_api_key: str = ""
 
     # JWT
     jwt_secret_key: str = ""
