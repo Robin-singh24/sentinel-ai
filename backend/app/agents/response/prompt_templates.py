@@ -18,11 +18,14 @@ Rules:
 
 USER_PROMPT_TEMPLATE = """Please answer the following query using only the provided context.
 
-Context:
+--- CONVERSATION MEMORY ---
+{memory}
+--- END CONVERSATION MEMORY ---
 
+--- RETRIEVAL CONTEXT ---
 {context}
+--- END RETRIEVAL CONTEXT ---
 
-User Question:
-
+--- USER QUERY ---
 {query}
 """

@@ -7,18 +7,17 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from app.database.base import Base
 from sqlalchemy import Enum, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSON, TIMESTAMP, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.database.base import Base
 
 if TYPE_CHECKING:
     from app.modules.auth.models import User
     from app.modules.workspaces.models import Workspace
 
 
-class MessageRole(str, enum.Enum):
+class MessageRole(enum.StrEnum):
     """Identifies the author of a message within a conversation."""
 
     user = "user"

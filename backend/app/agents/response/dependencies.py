@@ -11,6 +11,9 @@ from app.agents.response.providers.base import BaseLLMProvider
 from app.agents.response.providers.grok import GrokProvider
 from app.agents.response.service import ResponseService
 from app.config.settings import Settings, get_settings
+from app.modules.memory.dependencies import get_memory_formatter, get_memory_service
+from app.modules.memory.formatter import MemoryFormatter
+from app.modules.memory.service import ConversationMemoryService
 
 
 def get_context_formatter() -> ContextFormatter:
@@ -46,6 +49,8 @@ def get_response_service(
     prompt_builder: Annotated[PromptBuilder, Depends(get_prompt_builder)],
     llm_provider: Annotated[BaseLLMProvider, Depends(get_llm_provider)],
     parser: Annotated[ResponseParser, Depends(get_response_parser)],
+    memory_service: Annotated[ConversationMemoryService, Depends(get_memory_service)],
+    memory_formatter: Annotated[MemoryFormatter, Depends(get_memory_formatter)],
 ) -> ResponseService:
     """Create and return a ResponseService instance."""
     return ResponseService(
@@ -53,4 +58,6 @@ def get_response_service(
         prompt_builder=prompt_builder,
         llm_provider=llm_provider,
         parser=parser,
+        memory_service=memory_service,
+        memory_formatter=memory_formatter,
     )

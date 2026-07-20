@@ -14,6 +14,8 @@ from app.agents.response.providers.base import BaseLLMProvider
 from app.agents.response.service import ResponseService
 from app.agents.supervisor.models import WorkflowExecutionResult
 from app.common.exceptions import SentinelProviderError
+from app.modules.memory.formatter import MemoryFormatter
+from app.modules.memory.service import ConversationMemoryService
 from app.vectorstore.repositories.models import VectorSearchResult
 
 
@@ -47,12 +49,24 @@ def mock_provider():
 
 
 @pytest.fixture
-def service(formatter, prompt_builder, parser, mock_provider):
+def memory_service():
+    return ConversationMemoryService()
+
+
+@pytest.fixture
+def memory_formatter():
+    return MemoryFormatter()
+
+
+@pytest.fixture
+def service(formatter, prompt_builder, parser, mock_provider, memory_service, memory_formatter):
     return ResponseService(
         formatter=formatter,
         prompt_builder=prompt_builder,
         llm_provider=mock_provider,
         parser=parser,
+        memory_service=memory_service,
+        memory_formatter=memory_formatter,
     )
 
 
@@ -103,7 +117,10 @@ class TestResponseAgentIntegration:
         prompt_arg = mock_provider.generate.call_args[0][0]
         assert query in prompt_arg.user_prompt
         # The user prompt should have an empty context block
-        assert "Context:\n\n\n\nUser Question:" in prompt_arg.user_prompt
+        assert (
+            "--- RETRIEVAL CONTEXT ---\n\n--- END RETRIEVAL CONTEXT ---" 
+            in prompt_arg.user_prompt
+        )
 
     @pytest.mark.asyncio
     async def test_multi_document_retrieval_context(self, service, mock_provider):
@@ -147,7 +164,9 @@ class TestResponseAgentIntegration:
             await service.generate_response(query="test", workflow_result=workflow_result)
 
     @pytest.mark.asyncio
-    async def test_parser_failure_propagation(self, formatter, prompt_builder, mock_provider):
+    async def test_parser_failure_propagation(
+        self, formatter, prompt_builder, mock_provider, memory_service, memory_formatter
+    ):
         """Verify parser errors propagate unchanged using a real (test-only) failing component."""
         failing_parser = FailingTestParser()
         service = ResponseService(
@@ -155,6 +174,8 @@ class TestResponseAgentIntegration:
             prompt_builder=prompt_builder,
             llm_provider=mock_provider,
             parser=failing_parser,
+            memory_service=memory_service,
+            memory_formatter=memory_formatter,
         )
         
         workflow_result = WorkflowExecutionResult(retrieved_chunks=[])

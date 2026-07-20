@@ -79,6 +79,9 @@ class Settings(BaseSettings):
     embedding_model: str = "BAAI/bge-m3"
     embedding_batch_size: int = 32
 
+    # Conversation Memory
+    memory_window_size: int = 20
+
     # Computed fields
 
     @computed_field  # type: ignore[prop-decorator]
