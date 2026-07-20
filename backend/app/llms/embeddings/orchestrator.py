@@ -13,30 +13,48 @@ logger = logging.getLogger(__name__)
 
 
 class EmbeddingOrchestrator:
-    """
-    Coordinates the generation of embeddings for processed document chunks in batches.
-    
-    This orchestrator acts as a bridge between the ingestion pipeline and the 
-    underlying embedding providers, maintaining strict independence from the 
-    specific model implementations.
-    """
+    """Coordinates the generation of embeddings for processed document chunks in batches."""
 
     def __init__(self, provider: BaseEmbeddingProvider, batch_size: int = 32):
-        """
-        Initialize the orchestrator with an injected embedding provider.
-        
-        Args:
-            provider: An already constructed embedding provider instance.
-            batch_size: The number of chunks to process in a single embedding request.
-            
-        Raises:
-            SentinelValidationError: If batch_size is less than or equal to 0.
-        """
+        """Initialize the orchestrator with an injected embedding provider."""
         if batch_size <= 0:
             raise SentinelValidationError("Embedding batch size must be greater than 0.", field="batch_size")
             
         self._provider = provider
         self._batch_size = batch_size
+
+    def embed_query(self, query: str) -> list[float]:
+        """Generate an embedding vector for a single query string.
+        This method is designed for query embedding in retrieval workflows,
+        where only a single vector is needed rather than batch processing. """
+        if not query.strip():
+            raise SentinelValidationError("Cannot embed an empty query.", field="query")
+
+        request = EmbeddingRequest(texts=[query])
+        response = self._provider.embed(request)
+
+        # Validate the response
+        if len(response.embeddings) != 1:
+            raise SentinelProviderError(
+                f"Provider returned {len(response.embeddings)} embeddings, expected 1 for single query."
+            )
+
+        vector = response.embeddings[0]
+        
+        if not vector:
+            raise SentinelProviderError("Provider returned an empty embedding vector for query.")
+
+        if response.dimensions != len(vector):
+            raise SentinelProviderError(
+                f"Response metadata dimension ({response.dimensions}) does not match vector dimension ({len(vector)})."
+            )
+
+        logger.debug(
+            f"Generated query embedding using provider '{response.provider}', "
+            f"model '{response.model}', dimension {response.dimensions}."
+        )
+
+        return vector
 
     def _create_batches(self, chunks: list[ProcessedChunk], batch_size: int) -> Iterator[list[ProcessedChunk]]:
         """Yield sequential batches of ProcessedChunks."""
@@ -49,20 +67,7 @@ class EmbeddingOrchestrator:
         expected_count: int, 
         locked_dimension: int | None
     ) -> int:
-        """
-        Validate a single batch response from the provider.
-        
-        Args:
-            response: The EmbeddingResponse from the provider.
-            expected_count: The number of input texts sent in this batch.
-            locked_dimension: The dimension expected across all batches, if known.
-            
-        Returns:
-            The validated dimension for this batch.
-            
-        Raises:
-            SentinelProviderError: If the response fails any validation rules.
-        """
+        """Validate a single batch response from the provider."""
         # 1. Provider returned the same number of vectors as chunks
         if len(response.embeddings) != expected_count:
             raise SentinelProviderError(
@@ -104,19 +109,7 @@ class EmbeddingOrchestrator:
         return current_dimension
 
     def embed(self, chunks: list[ProcessedChunk]) -> list[EmbeddedChunk]:
-        """
-        Generate embeddings for a collection of processed chunks using batching.
-
-        Args:
-            chunks: A list of immutable ProcessedChunk instances.
-
-        Returns:
-            A list of EmbeddedChunk instances containing vectors.
-
-        Raises:
-            SentinelValidationError: If the input list is empty.
-            SentinelProviderError: If the provider fails or validation fails.
-        """
+        """Generate embeddings for a collection of processed chunks using batching."""
         if not chunks:
             raise SentinelValidationError("Cannot embed an empty list of chunks.", field="chunks")
 

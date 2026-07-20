@@ -16,13 +16,13 @@
 
 ✅ Phase 6 — Document Processing Pipeline
 
-✅ Phase 7 — Embedding Service - ongoing
+✅ Phase 7 — Embedding Service 
 
-⏳ Phase 8 — Qdrant Integration
+✅ Phase 8 — Qdrant Integration
 
-⏳ Phase 9 — Retriever Agent
+✅ Phase 9 — Retrieval Service
 
-⏳ Phase 10 — Supervisor Agent
+✅ Phase 10 — Supervisor Agent
 
 ⏳ Phase 11 — Response Agent
 
