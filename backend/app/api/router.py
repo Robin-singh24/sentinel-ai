@@ -1,14 +1,4 @@
-"""
-Top-level API router for Sentinel AI.
-
-All domain routers are registered here and mounted with the `/api/v1` prefix
-in `main.py`. Adding a new domain module requires only a single `include_router`
-call in this file — no changes to `main.py` are needed.
-
-Versioning strategy:
-  - Current version prefix: /api/v1
-  - Future versions will register an `api_v2_router` alongside this one.
-"""
+"""API ROUTER"""
 
 from fastapi import APIRouter
 
