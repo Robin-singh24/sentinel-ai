@@ -39,7 +39,7 @@ class ConversationMemoryService:
         )
         
         try:
-            conversation = await self._repository.get_conversation_with_messages(conversation_id)
+            conversation = await self._repository.get_by_id(conversation_id, include_messages=True)
         except SentinelNotFoundError:
             # Let the 404 pass through unchanged
             raise
